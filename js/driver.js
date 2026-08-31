@@ -1,19 +1,16 @@
 // js/driver.js
 
-let currentDriver = null; // данные водителя из Firestore
-let currentOrder = null; // текущий заказ
+let currentDriver = null;
+let currentOrder = null;
 let unsubscribeDriver = null;
 let unsubscribeAvailableOrders = null;
 let unsubscribeCurrentOrder = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Проверяем, авторизован ли пользователь
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // Пользователь вошёл, проверяем, есть ли у него документ водителя
             initDriverDashboard(user.uid);
         } else {
-            // Не авторизован, показываем форму входа
             showLoginForm();
         }
     });
@@ -25,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
         auth.signOut().then(() => {
-            // Очищаем подписки
             if (unsubscribeDriver) unsubscribeDriver();
             if (unsubscribeAvailableOrders) unsubscribeAvailableOrders();
             if (unsubscribeCurrentOrder) unsubscribeCurrentOrder();
@@ -56,7 +52,6 @@ async function loginDriver() {
 
     try {
         await auth.signInWithEmailAndPassword(email, password);
-        // onAuthStateChanged сработает и вызовет initDriverDashboard
     } catch (error) {
         const errorDiv = document.getElementById('loginError');
         errorDiv.textContent = 'Ошибка входа: ' + error.message;
@@ -77,7 +72,6 @@ async function initDriverDashboard(uid) {
         document.getElementById('driverStatus').value = driverData.status;
         showDashboard();
 
-        // Подписываемся на изменения своего документа
         unsubscribeDriver = onDriverSnapshot(uid, (driver) => {
             if (driver) {
                 currentDriver = driver;
@@ -96,14 +90,11 @@ async function initDriverDashboard(uid) {
             }
         });
 
-        // Подписываемся на доступные заказы
         unsubscribeAvailableOrders = onAvailableOrders((orders) => {
-            // Сохраняем список доступных заказов
             window.availableOrders = orders;
             renderAvailableOrders();
         });
 
-        // Если уже есть текущий заказ, подписываемся на него
         if (currentDriver.currentOrderId) {
             subscribeToCurrentOrder(currentDriver.currentOrderId);
         }
@@ -120,10 +111,6 @@ function subscribeToCurrentOrder(orderId) {
     unsubscribeCurrentOrder = onOrderSnapshot(orderId, (order) => {
         currentOrder = order;
         renderCurrentOrderSection();
-        if (!order || order.status === 'COMPLETED' || order.status === 'CANCELLED') {
-            // Если заказ завершён/отменён, освобождаем водителя (подписка на драйвера обновит статус)
-            // Но это произойдёт автоматически через onDriverSnapshot
-        }
     });
 }
 
@@ -139,7 +126,6 @@ async function updateDriverStatus(newStatus) {
 
 function renderAvailableOrders() {
     const container = document.getElementById('availableOrdersList');
-    if (!container) return;
     const orders = window.availableOrders || [];
     if (orders.length === 0) {
         container.innerHTML = '<p>Нет доступных заказов</p>';
@@ -168,7 +154,6 @@ async function acceptOrderHandler(orderId) {
     if (!currentDriver) return;
     try {
         await acceptOrder(orderId, currentDriver.id);
-        // Обновления произойдут через подписки
     } catch (error) {
         alert('Не удалось взять заказ: ' + error.message);
     }

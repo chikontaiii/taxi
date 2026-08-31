@@ -5,11 +5,9 @@ let unsubscribeOrder = null;
 let currentOrder = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Подключаем анонимную аутентификацию
     auth.signInAnonymously()
         .then(() => {
             console.log('Анонимный вход выполнен, UID:', auth.currentUser.uid);
-            // После входа можно продолжить инициализацию
             initPage();
         })
         .catch(error => {
@@ -19,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('orderForm').addEventListener('submit', (e) => {
         e.preventDefault();
-        createOrder();
+        submitOrder();
     });
 
     document.getElementById('cancelOrderBtn').addEventListener('click', () => {
@@ -28,22 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initPage() {
-    // Если есть сохранённый заказ, подписываемся на него
     if (lastOrderId) {
         subscribeToOrder(lastOrderId);
     }
-    // Обработчик изменения полей для пересчёта цены
     document.getElementById('pickupAddress').addEventListener('input', updateEstimatedPrice);
     document.getElementById('dropoffAddress').addEventListener('input', updateEstimatedPrice);
 }
 
 function updateEstimatedPrice() {
-    // В будущем здесь будет расчёт по расстоянию, пока фиксированная цена
-    const price = 60;
+    const price = 60; // пока фиксированная цена
     document.getElementById('estimatedPrice').textContent = price;
 }
 
-async function createOrder() {
+async function submitOrder() {
     const phone = document.getElementById('clientPhone').value.trim();
     const pickup = document.getElementById('pickupAddress').value.trim();
     const dropoff = document.getElementById('dropoffAddress').value.trim();
@@ -53,7 +48,7 @@ async function createOrder() {
         return;
     }
 
-    const price = 60; // пока фиксированная
+    const price = 60;
 
     try {
         const orderId = await createOrder({
@@ -75,7 +70,6 @@ async function createOrder() {
 }
 
 function subscribeToOrder(orderId) {
-    // Отписываемся от предыдущей подписки
     if (unsubscribeOrder) {
         unsubscribeOrder();
     }
@@ -99,12 +93,9 @@ function renderOrderStatus() {
     statusContainer.classList.remove('hidden');
     const order = currentOrder;
 
-    // Название водителя, если есть
     let driverName = '';
     if (order.assignedDriverId) {
-        // Можно получить имя водителя (пока не делаем запрос, оставим просто ID)
         driverName = ` (ID: ${order.assignedDriverId})`;
-        // В будущем можно подписаться на документ водителя
     }
 
     detailsContainer.innerHTML = `
@@ -135,7 +126,6 @@ async function cancelOrder() {
   try {
     await cancelOrderByClient(lastOrderId);
     showMessage('Заказ отменён');
-    // Подписка обновит статус автоматически
   } catch (error) {
     showMessage('Ошибка отмены: ' + error.message);
   }
