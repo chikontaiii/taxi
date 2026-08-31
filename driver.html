@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Такси Село — Водитель</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <nav class="nav">
+        <a href="index.html">Клиент</a>
+        <a href="driver.html" class="active">Водитель</a>
+        <a href="admin.html">Диспетчер</a>
+    </nav>
+    <div class="container" id="loginSection">
+        <h2>Вход для водителя</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label>Пароль</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+        <div id="loginError" class="message hidden"></div>
+    </div>
+
+    <div class="container hidden" id="dashboardSection">
+        <!-- Здесь будет весь функционал водителя -->
+    </div>
+    <div class="container hidden" id="dashboardSection">
+        <div class="driver-header">
+            <span id="driverName"></span>
+            <button id="logoutBtn" class="btn btn-secondary" style="width:auto;">Выйти</button>
+        </div>
+        <div class="form-group">
+            <label>Ваш статус</label>
+            <select id="driverStatus">
+      <option value="offline">⚫ Не на линии</option>
+      <option value="online">🟢 На линии</option>
+    </select>
+        </div>
+
+        <div id="currentOrderSection" class="hidden">
+            <h2>Текущий заказ</h2>
+            <div id="currentOrderDetails"></div>
+            <div id="actionButtons"></div>
+        </div>
+
+        <div id="availableOrdersSection">
+            <h2>Доступные заказы</h2>
+            <div id="availableOrdersList"></div>
+        </div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-service.js"></script>
+    <script src="js/driver.js"></script>
+    <!-- Firebase App (совместимый режим) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <!-- Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</body>
+
+</html>

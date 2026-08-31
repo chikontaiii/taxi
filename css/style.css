@@ -1,0 +1,316 @@
+/* css/style.css */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #f0f2f5;
+    color: #1c1e21;
+    line-height: 1.4;
+    padding: 10px;
+    min-height: 100vh;
+}
+
+
+/* Контейнер */
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+
+/* Шапка с навигацией */
+
+.nav {
+    max-width: 600px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.nav a {
+    text-decoration: none;
+    background: white;
+    color: #1877f2;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    transition: background 0.2s;
+}
+
+.nav a:hover {
+    background: #e7f3ff;
+}
+
+.nav a.active {
+    background: #1877f2;
+    color: white;
+}
+
+h1,
+h2,
+h3 {
+    margin-bottom: 15px;
+    color: #1c1e21;
+}
+
+h1 {
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.4rem;
+}
+
+
+/* Формы */
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #65676b;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #ccd0d5;
+    border-radius: 8px;
+    outline: none;
+}
+
+input:focus,
+select:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.btn-primary {
+    background: #1877f2;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #166fe0;
+}
+
+.btn-success {
+    background: #42b72a;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #36a420;
+}
+
+.btn-danger {
+    background: #fa383e;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #e02d33;
+}
+
+.btn-warning {
+    background: #f7b928;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #e6a91e;
+}
+
+.btn-secondary {
+    background: #e4e6eb;
+    color: #050505;
+}
+
+.btn-secondary:hover {
+    background: #d8dadf;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* Карточки заказов */
+
+.order-card {
+    background: #f0f2f5;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.order-card .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.order-card .price {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #1877f2;
+}
+
+.order-card .status {
+    background: #e4e6eb;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.status.SEARCHING_DRIVER {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status.NEW {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status.ACCEPTED {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status.DRIVER_ARRIVING {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status.RIDE_STARTED {
+    background: #d6d8db;
+    color: #1b1e21;
+}
+
+.status.COMPLETED {
+    background: #c3e6cb;
+    color: #155724;
+}
+
+.status.CANCELLED {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.order-addresses {
+    margin-bottom: 8px;
+}
+
+.order-addresses div {
+    padding: 4px 0;
+}
+
+
+/* Список водителей */
+
+.driver-item {
+    background: #f0f2f5;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.driver-status {
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: #e4e6eb;
+}
+
+
+/* Кнопка "Взять заказ" */
+
+.take-btn {
+    background: #42b72a;
+    color: white;
+    font-size: 1.1rem;
+    padding: 14px;
+    margin-top: 10px;
+}
+
+.take-btn:hover {
+    background: #36a420;
+}
+
+
+/* Уведомления */
+
+#message,
+.message {
+    padding: 10px;
+    background: #e7f3ff;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+
+/* Адаптивность */
+
+@media (min-width: 768px) {
+    .container {
+        padding: 30px;
+    }
+}
+
+
+/* Утилиты */
+
+.text-center {
+    text-align: center;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
+}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Такси Село — Клиент</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Навигация -->
+    <nav class="nav">
+        <a href="index.html" class="active">Клиент</a>
+        <a href="driver.html">Водитель</a>
+        <a href="admin.html">Диспетчер</a>
+    </nav>
+
+    <div class="container">
+        <h1>🚕 Заказать такси</h1>
+
+        <!-- Форма заказа -->
+        <form id="orderForm">
+            <div class="form-group">
+                <label for="clientPhone">Ваш телефон</label>
+                <input type="tel" id="clientPhone" placeholder="+996 XXX XXX XXX" required>
+            </div>
+            <div class="form-group">
+                <label for="pickupAddress">Откуда</label>
+                <input type="text" id="pickupAddress" placeholder="Например: Центральная 5" required>
+            </div>
+            <div class="form-group">
+                <label for="dropoffAddress">Куда</label>
+                <input type="text" id="dropoffAddress" placeholder="Например: Школа №2" required>
+            </div>
+
+            <!-- Примерная цена (будет заполнена после ввода) -->
+            <div class="form-group">
+                <p>Примерная цена: <strong id="estimatedPrice">—</strong></p>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Заказать</button>
+        </form>
+
+        <!-- Статус заказа -->
+        <div id="orderStatus" class="hidden mt-20">
+            <h3>Ваш заказ</h3>
+            <div id="orderDetails"></div>
+            <button id="cancelOrderBtn" class="btn btn-danger mt-20 hidden">Отменить заказ</button>
+        </div>
+
+        <!-- Сообщения -->
+        <div id="message" class="message hidden"></div>
+    </div>
+
+    <!-- Скрипты -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-service.js"></script>
+    <script src="js/client.js"></script>
+    <!-- Firebase App (совместимый режим) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <!-- Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</body>
+
+</html>
