@@ -2,7 +2,6 @@
 
 // ========== УТИЛИТЫ ==========
 
-// Текущий пользователь (auth.currentUser)
 function getCurrentUser() {
     return auth.currentUser;
 }
@@ -17,14 +16,14 @@ async function createOrder(orderData) {
 
         const order = {
             ...orderData,
-            clientUid: user.uid, // привязка к анонимному клиенту
+            clientUid: user.uid,
             assignedDriverId: null,
-            status: 'SEARCHING_DRIVER', // можно 'NEW', но пока сразу ищем
+            status: 'SEARCHING_DRIVER',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             history: [{
                 status: 'SEARCHING_DRIVER',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                timestamp: firebase.firestore.Timestamp.now(), // <-- исправлено
                 by: 'client'
             }]
         };
@@ -44,7 +43,7 @@ function onOrderSnapshot(orderId, callback) {
             if (doc.exists) {
                 callback({ id: doc.id, ...doc.data() });
             } else {
-                callback(null); // заказ удалён
+                callback(null);
             }
         }, (error) => {
             console.error('Ошибка подписки на заказ:', error);
@@ -67,7 +66,7 @@ async function cancelOrderByClient(orderId) {
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 history: firebase.firestore.FieldValue.arrayUnion({
                     status: 'CANCELLED',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    timestamp: firebase.firestore.Timestamp.now(), // <-- исправлено
                     by: 'client'
                 })
             });
@@ -78,7 +77,7 @@ async function cancelOrderByClient(orderId) {
                 if (driverSnap.exists && driverSnap.data().currentOrderId === orderId) {
                     transaction.update(driverRef, {
                         currentOrderId: null,
-                        status: 'online' // или оставить прежний
+                        status: 'online'
                     });
                 }
             }
@@ -92,7 +91,6 @@ async function cancelOrderByClient(orderId) {
 
 // ========== ВОДИТЕЛИ ==========
 
-// Получить документ водителя по UID
 async function getDriverData(driverUid) {
     const doc = await db.collection('drivers').doc(driverUid).get();
     if (doc.exists) {
@@ -102,7 +100,6 @@ async function getDriverData(driverUid) {
     }
 }
 
-// Подписка на изменения своего документа водителя
 function onDriverSnapshot(driverUid, callback) {
     return db.collection('drivers').doc(driverUid)
         .onSnapshot((doc) => {
@@ -114,7 +111,6 @@ function onDriverSnapshot(driverUid, callback) {
         });
 }
 
-// Обновить статус водителя (online/offline)
 async function setDriverStatus(driverUid, newStatus) {
     const driverRef = db.collection('drivers').doc(driverUid);
     await driverRef.update({
@@ -123,7 +119,6 @@ async function setDriverStatus(driverUid, newStatus) {
     });
 }
 
-// Подписка на доступные заказы (для водителя)
 function onAvailableOrders(callback) {
     return db.collection('orders')
         .where('status', '==', 'SEARCHING_DRIVER')
@@ -140,7 +135,6 @@ function onAvailableOrders(callback) {
         });
 }
 
-// Принять заказ (транзакция)
 async function acceptOrder(orderId, driverUid) {
     const orderRef = db.collection('orders').doc(orderId);
     const driverRef = db.collection('drivers').doc(driverUid);
@@ -155,7 +149,6 @@ async function acceptOrder(orderId, driverUid) {
                 throw new Error('Заказ уже недоступен');
             }
 
-            // Проверяем водителя
             const driverSnap = await transaction.get(driverRef);
             if (!driverSnap.exists) throw new Error('Водитель не найден');
             const driver = driverSnap.data();
@@ -163,19 +156,17 @@ async function acceptOrder(orderId, driverUid) {
                 throw new Error('Вы не можете взять заказ сейчас');
             }
 
-            // Обновляем заказ
             transaction.update(orderRef, {
                 status: 'ACCEPTED',
                 assignedDriverId: driverUid,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 history: firebase.firestore.FieldValue.arrayUnion({
                     status: 'ACCEPTED',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    timestamp: firebase.firestore.Timestamp.now(), // <-- исправлено
                     by: 'driver'
                 })
             });
 
-            // Обновляем водителя
             transaction.update(driverRef, {
                 currentOrderId: orderId,
                 status: 'on_ride',
@@ -189,7 +180,6 @@ async function acceptOrder(orderId, driverUid) {
     }
 }
 
-// Обновить статус заказа водителем (DRIVER_ARRIVING, RIDE_STARTED, COMPLETED)
 async function updateOrderStatusByDriver(orderId, driverUid, newStatus) {
     const orderRef = db.collection('orders').doc(orderId);
     const driverRef = db.collection('drivers').doc(driverUid);
@@ -201,7 +191,6 @@ async function updateOrderStatusByDriver(orderId, driverUid, newStatus) {
             const order = orderSnap.data();
             if (order.assignedDriverId !== driverUid) throw new Error('Вы не назначены на этот заказ');
 
-            // Проверка допустимости перехода
             const allowedTransitions = {
                 'ACCEPTED': ['DRIVER_ARRIVING'],
                 'DRIVER_ARRIVING': ['RIDE_STARTED'],
@@ -216,12 +205,11 @@ async function updateOrderStatusByDriver(orderId, driverUid, newStatus) {
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 history: firebase.firestore.FieldValue.arrayUnion({
                     status: newStatus,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    timestamp: firebase.firestore.Timestamp.now(), // <-- исправлено
                     by: 'driver'
                 })
             });
 
-            // Если поездка завершена, освобождаем водителя
             if (newStatus === 'COMPLETED') {
                 transaction.update(driverRef, {
                     currentOrderId: null,
@@ -239,7 +227,6 @@ async function updateOrderStatusByDriver(orderId, driverUid, newStatus) {
 
 // ========== АДМИНИСТРИРОВАНИЕ ==========
 
-// Получить всех водителей (для админа)
 function onAllDrivers(callback) {
     return db.collection('drivers').onSnapshot((snapshot) => {
         const drivers = [];
@@ -250,7 +237,6 @@ function onAllDrivers(callback) {
     });
 }
 
-// Получить все заказы (для админа)
 function onAllOrders(callback) {
     return db.collection('orders').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
         const orders = [];
@@ -261,7 +247,6 @@ function onAllOrders(callback) {
     });
 }
 
-// Назначить водителя админом
 async function assignDriverByAdmin(orderId, driverId) {
     const orderRef = db.collection('orders').doc(orderId);
     const batch = db.batch();
@@ -271,7 +256,6 @@ async function assignDriverByAdmin(orderId, driverId) {
         if (!orderSnap.exists) throw new Error('Заказ не найден');
         const order = orderSnap.data();
 
-        // Снимаем с предыдущего водителя, если был
         if (order.assignedDriverId) {
             const oldDriverRef = db.collection('drivers').doc(order.assignedDriverId);
             batch.update(oldDriverRef, {
@@ -282,7 +266,6 @@ async function assignDriverByAdmin(orderId, driverId) {
         }
 
         if (driverId) {
-            // Назначаем нового
             const newDriverRef = db.collection('drivers').doc(driverId);
             batch.update(orderRef, {
                 assignedDriverId: driverId,
@@ -290,7 +273,7 @@ async function assignDriverByAdmin(orderId, driverId) {
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 history: firebase.firestore.FieldValue.arrayUnion({
                     status: 'ACCEPTED',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    timestamp: firebase.firestore.Timestamp.now(), // <-- исправлено
                     by: 'admin'
                 })
             });
@@ -300,14 +283,13 @@ async function assignDriverByAdmin(orderId, driverId) {
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         } else {
-            // Снять назначение, вернуть в поиск
             batch.update(orderRef, {
                 assignedDriverId: null,
                 status: 'SEARCHING_DRIVER',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 history: firebase.firestore.FieldValue.arrayUnion({
                     status: 'SEARCHING_DRIVER',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    timestamp: firebase.firestore.Timestamp.now(), // <-- исправлено
                     by: 'admin'
                 })
             });
@@ -321,7 +303,6 @@ async function assignDriverByAdmin(orderId, driverId) {
     }
 }
 
-// Изменить цену заказа
 async function updateOrderPrice(orderId, newPrice) {
     await db.collection('orders').doc(orderId).update({
         price: newPrice,
@@ -329,7 +310,6 @@ async function updateOrderPrice(orderId, newPrice) {
     });
 }
 
-// Отменить заказ админом
 async function cancelOrderByAdmin(orderId) {
     const orderRef = db.collection('orders').doc(orderId);
     await db.runTransaction(async(transaction) => {
@@ -341,7 +321,7 @@ async function cancelOrderByAdmin(orderId) {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             history: firebase.firestore.FieldValue.arrayUnion({
                 status: 'CANCELLED',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                timestamp: firebase.firestore.Timestamp.now(), // <-- исправлено
                 by: 'admin'
             })
         });
@@ -358,7 +338,6 @@ async function cancelOrderByAdmin(orderId) {
     });
 }
 
-// Создать заказ вручную админом
 async function createOrderByAdmin(orderData) {
     const order = {
         ...orderData,
@@ -368,10 +347,10 @@ async function createOrderByAdmin(orderData) {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         history: [{
             status: 'SEARCHING_DRIVER',
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            timestamp: firebase.firestore.Timestamp.now(), // <-- исправлено
             by: 'admin'
         }],
-        clientUid: null // или указать специальный
+        clientUid: null
     };
     const docRef = await db.collection('orders').add(order);
     return docRef.id;
