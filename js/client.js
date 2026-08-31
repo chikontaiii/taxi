@@ -1,5 +1,13 @@
 // js/client.js
-
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
 let lastOrderId = sessionStorage.getItem('lastOrderId') || null;
 let unsubscribeOrder = null;
 let currentOrder = null;

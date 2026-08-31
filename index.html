@@ -4,20 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Такси Село — Клиент</title>
+    <title>Такси Село — Заказ</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
+    <!-- Навигация -->
     <nav class="nav">
-        <a href="index.html" class="active">Клиент</a>
-        <a href="driver.html">Водитель</a>
-        <a href="admin.html">Диспетчер</a>
+        <a href="index.html" class="active">🚕 Заказ</a>
+        <a href="driver.html">🚗 Водитель</a>
+        <a href="admin.html">📋 Диспетчер</a>
     </nav>
 
     <div class="container">
-        <h1>🚕 Заказать такси</h1>
+        <h1>Заказать такси</h1>
 
         <form id="orderForm">
             <div class="form-group">
@@ -34,22 +35,24 @@
             </div>
 
             <div class="form-group">
-                <p>Примерная цена: <strong id="estimatedPrice">—</strong></p>
+                <p>Примерная цена: <strong id="estimatedPrice">—</strong> сом</p>
             </div>
 
             <button type="submit" class="btn btn-primary">Заказать</button>
         </form>
 
+        <!-- Статус заказа -->
         <div id="orderStatus" class="hidden mt-20">
             <h3>Ваш заказ</h3>
             <div id="orderDetails"></div>
             <button id="cancelOrderBtn" class="btn btn-danger mt-20 hidden">Отменить заказ</button>
         </div>
-
-        <div id="message" class="message hidden"></div>
     </div>
 
-    <!-- Firebase SDK (порядок важен!) -->
+    <!-- Тост-контейнер -->
+    <div id="toast-container"></div>
+
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
